@@ -43,7 +43,7 @@ class SendGrid(SGMail):
         self.default_from = app.config['SENDGRID_DEFAULT_FROM']
         self.client = SendGridAPIClient(apikey=self.api_key).client
 
-    def send_email(self, to_email, subject, from_email=None, html=None, text=None, *args, **kwargs):
+    def send_email(self, to_email, subject, from_email=None, html=None, text=None, attachement=None, *args, **kwargs):
         if not any([from_email, self.default_from]):
             raise ValueError("Missing from email and no default.")
         if not any([html, text]):
@@ -67,6 +67,10 @@ class SendGrid(SGMail):
         content = Content("text/html", html) if html else Content("text/plain", text)
         self.add_content(content)
 
+        # Assuming `attachment` is Attachment() object from SendGrid api
+        if attachment:
+            self.add_attachment(attachment)
+            
         return self.client.mail.send.post(request_body=self.get())
 
     def _extract_emails(self, emails):
